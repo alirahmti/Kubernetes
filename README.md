@@ -12,6 +12,7 @@ Kubernetes schedules work based on the understanding of available resources. If 
 with.
 
 #### There is 2 way for disable swap:
+
 #### First way:
 
 ```bash
