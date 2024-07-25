@@ -158,7 +158,7 @@ sudo kubeadm reset --force
 ```
 To manage the cluster, you should configure kubectl on the master node. Create the `.kube` directory in your home directory and copy the cluster's admin configuration to your personal .kube directory. Next, change the `ownership` of the copied configuration file to give the user the permission to use the configuration file to interact with the cluster
 ```bash
-mkdir -p $HOME/.kubemkdir -p $HOME/.kube
+mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
