@@ -219,5 +219,38 @@ sudo kubeadm join [master-node-ip]:8443 --token [token] \
 🔺Installing Containerd
 
 🔺Install kubelet, kubeadm, and kubectl
+---
+## Generating a New Join Command for a Kubernetes Worker Node 🧑‍🏭
+If you've lost the join command for your Kubernetes worker node, you can easily generate a new token and the corresponding join command on your control plane (master) node. Here’s how to do it:
+### 1- Generate a New Token and Join Command:
+You can create a new token and print the join command using the following command on your control plane node: 
 
+```bash
+kubeadm token create --print-join-command
+```
+
+This command will output something like:
+
+```bash
+kubeadm join <control_plane_IP>:6443 --token <token> --discovery-token-ca-cert-hash <hash>
+```
+
+Here, `<control_plane_IP>` is the IP address of your control plane node, `<token>` is the newly generated token, and `<hash>` is the discovery token CA certificate hash.
+
+### 2- Run the Join Command on the Worker Node:
+Once you have the output from the previous command, you can take that complete command and run it on your worker node. For example:
+
+```bash
+sudo kubeadm join <control_plane_IP>:6443 --token <token> --discovery-token-ca-cert-hash <hash>
+```
+### Important Notes💡
+Token Validity: 🔸 By default, the token is valid for 24 hours. If you need to join a worker node after this period, you will need to generate a new token as described above 
+
+Ensure Connectivity: 🔸 Make sure that your worker node can reach the control plane node over the network.
+
+⚠️ This process will allow you to successfully rejoin your worker node to the Kubernetes cluster ⚠️
+---
+## Author
+
+Created by [Ali Rahmati](https://github.com/alirahmti). If you find this repository helpful, feel free to fork it or contribute!
 
