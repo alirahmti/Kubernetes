@@ -219,6 +219,7 @@ sudo kubeadm join [master-node-ip]:8443 --token [token] \
 🔺Installing Containerd
 
 🔺Install kubelet, kubeadm, and kubectl
+
 ---
 ## Generating a New Join Command for a Kubernetes Worker Node 🧑‍🏭
 If you've lost the join command for your Kubernetes worker node, you can easily generate a new token and the corresponding join command on your control plane (master) node. Here’s how to do it:
@@ -249,6 +250,7 @@ Token Validity: 🔸 By default, the token is valid for 24 hours. If you need to
 Ensure Connectivity: 🔸 Make sure that your worker node can reach the control plane node over the network.
 
 ⚠️ This process will allow you to successfully rejoin your worker node to the Kubernetes cluster ⚠️
+
 ---
 ## Author
 
