@@ -230,7 +230,7 @@ sudo kubeadm join [master-node-ip]:8443 --token [token] \
 
 1. **🚀 Prerequisites 🛠️**
 2. **🛑 Disable Swap Memory**
-3. **🧑‍💻 Configure Kernel Parameters**
+3. **🌉 Set up the IPv4 Bridge Networking on All Nodes**
 4. **🐳 Install Container Runtime (Containerd)**
 5. **🛠️ Install Kubernetes Tools (kubeadm, kubelet, kubectl)**
 6. **🤝 Join the Worker Node to the Cluster**
