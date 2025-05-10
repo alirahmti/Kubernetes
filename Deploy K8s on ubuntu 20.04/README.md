@@ -1,5 +1,4 @@
-# 🚀 Step-by-Step Guide to Deploying a Kubernetes Cluster on Ubuntu with HAProxy
-Welcome to the guide for setting up a Kubernetes cluster with an HAProxy load balancer! This document will walk you through the steps to configure HAProxy and ensure proper resolution of the API server address.  
+# 🚀 Step-by-Step Guide to Deploying a Kubernetes Cluster on Ubuntu
 #### **Tested on Ubuntu 20.04, 22.04 and 24.04 ✅**  
 This guide has been successfully tested on **Ubuntu 20.04**, **Ubuntu 22.04** and **Ubuntu 24.04**, ensuring compatibility and smooth execution of all steps.
 
@@ -157,11 +156,10 @@ sudo kubeadm config images pull
 ```
 
 ### 4.8. **Initialize the Cluster:**
-### 💡 Important: *Before initializing the cluster, you must configure HAProxy first.* ❗️❗️❗️
-
 ```bash
-kubeadm init --control-plane-endpoint "apisrv.aranetco.ir:8443" --pod-network-cidr=10.244.0.0/16 --upload-certs
+kubeadm init --control-plane-endpoint "<FQDN or IPAddress>:6443" --pod-network-cidr=10.244.0.0/16 --upload-certs
 ```
+
 #### ⚠️ **If the cluster doesn’t work, reset it with kubeadm:**
 ```bash
 sudo kubeadm reset --force
@@ -243,229 +241,24 @@ sudo kubeadm join [master-node-ip]:8443 --token [token] \
 **💡 Hint:** This guide provides a **detailed, step-by-step explanation** for setting up and configuring a Kubernetes worker node from scratch. **👉 Click the title above** or [**here**](https://github.com/alirahmti/Kubernetes/blob/main/worker-node-setup.md) to access the full guide.
 
 ---
-## **8️⃣ HAProxy** 🚀
 
-#### 📝 **Introduction**  
-HAProxy, which stands for **High Availability Proxy**, is a popular open-source software solution for **TCP/HTTP load balancing** and proxying. It can run on Linux, macOS, and FreeBSD. Its primary purpose is to improve the **performance** and **reliability** of a server environment by distributing workloads across multiple servers (e.g., web, application, or database servers).  
+## **Generating a New Join Command for a Worker Node** 🧑‍🏭
 
-HAProxy is widely used in high-profile environments, including **GitHub**, **Imgur**, **Instagram**, and **Twitter**. 🌐
+If you've lost the join command for your Kubernetes worker node, you can easily generate a new token and the corresponding join command on your control plane (master) node.
 
----
-
-#### **Installation ✔️**  
-To install HAProxy on Ubuntu, use the following command:  
+#### 🔹 **Generate a new token and join command:**
 ```bash
-apt install haproxy
-```  
-
-Once installed, you can configure HAProxy by editing its configuration file:  
-```bash
-vim /etc/haproxy/haproxy.cfg
-```  
-
-Below is the full configuration for HAProxy:  
-
----
-
-### **HAProxy Configuration File** 🛠️
-```haproxy
-# Frontend for Kubernetes API
-frontend k8s-api
-  bind *:8443
-  mode tcp
-  option tcplog
-  default_backend k8s-api
-
-# Backend for Kubernetes API
-backend k8s-api
-  mode tcp
-  option tcplog
-  option tcp-check
-  balance roundrobin
-  default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 250 maxqueue 256 weight 100
-  server k8s-api-1 192.168.168.51:6443 check
-
-# Monitoring HAProxy
-frontend stats
-  bind *:8404
-  stats enable
-  stats uri /stats
-  stats refresh 10
+kubeadm token create --print-join-command
 ```
 
----
-
-### **Explanation of the Configuration File** 📝  
-
-#### **1. Frontend for Kubernetes API**  
-- **`frontend k8s-api`**: Defines a frontend named `k8s-api` to handle incoming traffic.  
-- **`bind *:8443`**: Binds the frontend to port `8443` on all available network interfaces. 🌐  
-- **`mode tcp`**: Configures the frontend to operate in **TCP mode** (Layer 4), which is suitable for Kubernetes API traffic.  
-- **`option tcplog`**: Enables detailed logging for TCP connections. 📝  
-- **`default_backend k8s-api`**: Specifies that traffic received on this frontend should be forwarded to the `k8s-api` backend.  
-
-#### **2. Backend for Kubernetes API**  
-- **`backend k8s-api`**: Defines a backend named `k8s-api` to handle traffic forwarded from the frontend.  
-- **`mode tcp`**: Configures the backend to operate in **TCP mode**.  
-- **`option tcplog`**: Enables detailed logging for TCP connections.  
-- **`option tcp-check`**: Enables health checks for backend servers using TCP. ✅  
-- **`balance roundrobin`**: Distributes traffic evenly across all available servers in a **round-robin** fashion. 🔄  
-- **`default-server`**: Sets default parameters for all servers in this backend:  
-  - **`inter 10s`**: Interval between health checks is 10 seconds.  
-  - **`downinter 5s`**: Interval between health checks for servers marked as down is 5 seconds.  
-  - **`rise 2`**: A server is marked as healthy after 2 consecutive successful health checks.  
-  - **`fall 2`**: A server is marked as unhealthy after 2 consecutive failed health checks.  
-  - **`slowstart 60s`**: Gradually increases the server's weight over 60 seconds after it becomes healthy.  
-  - **`maxconn 250`**: Limits the maximum number of concurrent connections to 250 per server.  
-  - **`maxqueue 256`**: Limits the maximum number of queued connections to 256 per server.  
-  - **`weight 100`**: Assigns a weight of 100 to the server for load balancing.  
-- **`server k8s-api-1 192.168.168.51:6443 check`**: Defines a backend server named `k8s-api-1` with the IP address `192.168.168.51` and port `6443`. The `check` option enables health checks for this server.  
-
-#### **3. Monitoring HAProxy**  
-- **`frontend stats`**: Defines a frontend named `stats` for monitoring HAProxy. 📊  
-- **`bind *:8404`**: Binds the monitoring interface to port `8404` on all available network interfaces.  
-- **`stats enable`**: Enables the HAProxy statistics module.  
-- **`stats uri /stats`**: Specifies the URI path (`/stats`) for accessing the statistics page.  
-- **`stats refresh 10`**: Refreshes the statistics page every 10 seconds. 🔄  
----
-
-
-##  **9️⃣ Configuring API Server Address ⚙️**  
-
-When setting up your Kubernetes cluster, it is essential to ensure that the **API server address** is properly resolved by all machines in the cluster, including the master and worker nodes. This can be achieved in one of two ways:  
-
----
-
-### 🌐 **1. Using a DNS Server (Recommended)**  
-If you have a **DNS server** configured, you should add the API server's address to the DNS records. This allows all nodes and clients in the cluster to resolve the API server's domain name to its IP address automatically.  
-
-For example, you would create a DNS record that maps the API server's domain name (e.g., `api-server.example.com`) to its IP address (e.g., `192.168.1.50`).  
-
-✅ **Advantages of Using DNS:**  
-- Centralized domain name resolution.  
-- Simplifies management, especially in larger or dynamic environments.  
-
----
-
-### 🖥️ **2. Using the `/etc/hosts` File (When DNS is Not Available)**  
-If you do not have a DNS server, you must manually configure the API server's domain name resolution by adding an entry to the `/etc/hosts` file on **all machines associated with the Kubernetes cluster**, including the master and worker nodes.  
-
-#### **Steps to Configure `/etc/hosts`:**  
-1. Open the `/etc/hosts` file on each machine:  
-   ```bash
-   sudo vim /etc/hosts
-   ```
-
-2. Add the following line to map the API server's IP address to its domain name:  
-   ```bash
-   192.168.1.50 api-server.example.com
-   ```
-   - Replace `192.168.1.50` with the **IP address** of your API server.  
-   - Replace `api-server.example.com` with the **desired domain name**.  
-
-3. Save and close the file.  
-
----
-
-### ❗ **Important Note**  
-When you are not using a DNS server, you **must include the domain name and API address of the API server in the `/etc/hosts` file on all machines in the Kubernetes cluster**, including the master and worker nodes. This ensures that all nodes can resolve the API server's domain name to its IP address.  
-
----
-
-## 📋 **Why This Step is Important**  
-
-- **DNS Server**: Using a DNS server is the preferred method because it centralizes domain name resolution and simplifies management, especially in larger or dynamic environments.  
-- **`/etc/hosts` File**: This method is suitable for smaller setups or testing environments but requires manual updates on each machine if the API server's IP address changes.  
-
----
-
-### 🎉 **You're All Set!**  
-Now that you've configured the API server address, you're ready to proceed with initializing your Kubernetes cluster and setting up HAProxy. 🚀  
-
----
-
-## 🌟 **Why Use Port 8443 for HAProxy Instead of 6443 for the Kubernetes API Server?**
-
-When setting up a Kubernetes cluster with HAProxy as a load balancer, you may notice that the Kubernetes API server listens on **port 6443** by default, but HAProxy is configured to listen on **port 8443**. This is a deliberate and important design choice. Here's why:
-
----
-
-### 🔧 **1. Separation of Responsibilities**
-- **Port 6443** is the default port used by the Kubernetes API server for secure communication.  
-- HAProxy acts as an **intermediary** (load balancer) between clients (e.g., `kubectl`, Kubernetes components, or external users) and the API server.  
-- To avoid confusion and clearly distinguish between **direct API server access** and **load-balanced access**, HAProxy is configured to listen on **port 8443**.
-
----
-
-### 🚫 **2. Avoiding Port Conflicts**
-- If HAProxy were configured to listen on **port 6443**, it would conflict with the Kubernetes API server, which is already bound to that port on the master node(s).  
-- By using **port 8443**, we ensure that both services (HAProxy and the Kubernetes API server) can coexist without any port binding issues.
-
----
-
-### 🌐 **3. HAProxy as a Gateway**
-- HAProxy serves as a **single entry point** for all incoming traffic to the Kubernetes API server.  
-- By assigning it a different port (**8443**), it becomes clear that traffic on this port is being routed through the load balancer.  
-- This abstraction simplifies client configuration, as clients only need to know the HAProxy endpoint (e.g., `https://haproxy.example.com:8443`) rather than managing multiple API server endpoints.
-
----
-
-### 🔒 **4. Security and Access Control**
-- Using a different port for HAProxy allows for better **access control** and **firewall rules**:  
-  - **Port 6443** can be restricted to internal components or administrators who need direct access to the API server.  
-  - External users or clients can be directed to **port 8443**, where HAProxy handles load balancing and potentially additional security measures (e.g., rate limiting, logging).
-
----
-
-### ⚖️ **5. Flexibility in Multi-Master Setups**
-- In a **multi-master Kubernetes cluster**, HAProxy distributes traffic across multiple API servers running on different master nodes.  
-- By using **port 8443**, HAProxy provides a **single, unified entry point** for clients, while internally forwarding requests to the appropriate master node on **port 6443**.
-
----
-
-### 🛠️ **How It Works in Your Configuration**
-Here’s how this setup is reflected in your HAProxy configuration:
-
-```haproxy
-# Frontend for Kubernetes API
-frontend k8s-api
-  bind *:8443  # HAProxy listens on port 8443 for incoming traffic
-  mode tcp
-  option tcplog
-  default_backend k8s-api
-
-# Backend for Kubernetes API
-backend k8s-api
-  mode tcp
-  option tcplog
-  option tcp-check
-  balance roundrobin
-  server k8s-api-1 192.168.1.50:6443 check  # Forwards traffic to the API server on port 6443
+#### 🔹 **Run the join command on the worker node:**
+```bash
+sudo kubeadm join <control_plane_IP>:6443 --token <token> --discovery-token-ca-cert-hash <hash>
 ```
 
-- **Frontend (`bind *:8443`)**: HAProxy listens for incoming traffic on **port 8443**.  
-- **Backend (`192.168.1.50:6443`)**: HAProxy forwards the traffic to the Kubernetes API server running on **port 6443**.
-
-This setup ensures that:  
-1. Clients connect to HAProxy on **port 8443**.  
-2. HAProxy distributes the traffic to the API server(s) on **port 6443**.
-
----
-
-### 🎯 **Key Benefits of Using Port 8443 for HAProxy**
-1. **No Port Conflicts**: Avoids conflicts with the Kubernetes API server, which uses port 6443.  
-2. **Clear Separation**: Distinguishes between direct API server access and load-balanced access.  
-3. **Simplified Access**: Provides a single, unified entry point for clients.  
-4. **Enhanced Security**: Allows for better access control and firewall rules.  
-5. **Scalability**: Supports multi-master setups by routing traffic to multiple API servers.
-
----
-
-### 🎉 **Conclusion**
-Using **port 8443** for HAProxy instead of **port 6443** is a best practice that ensures a clean, scalable, and secure architecture for your Kubernetes cluster. It avoids conflicts, simplifies management, and provides a clear separation of responsibilities between HAProxy and the Kubernetes API server. 🚀
 
 
----
 ## **Author** ✍️
 
 Created by [Ali Rahmati](https://github.com/alirahmti). If you find this repository helpful, feel free to fork it or contribute!
+
