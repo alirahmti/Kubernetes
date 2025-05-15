@@ -113,23 +113,27 @@ Let’s install `kubelet`, `kubeadm`, and `kubectl` on each node to create a Kub
 #### 🔸 **`Kubelet`** : The component that runs on all machines in your cluster and starts pods and containers.  
 #### 🔸 **`Kubectl`** : The command-line utility to interact with your cluster.
 
-#### ⚠️ **These instructions are for Kubernetes v1.30.**
+#### ⚠️ **These instructions are for Kubernetes v1.33.**
 
 ### 4.1. **Update the apt package index and install dependencies:**
 ```bash
 sudo apt-get update
+# apt-transport-https may be a dummy package; if so, you can skip that package
 sudo apt-get install -y apt-transport-https ca-certificates curl gpg
 ```
 
 ### 4.2. **Download the public signing key for Kubernetes:**
 ```bash
+# If the directory `/etc/apt/keyrings` does not exist, it should be created before the curl command, read the note below.
 sudo mkdir -p -m 755 /etc/apt/keyrings
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 ```
+
 #### 💡 Note: 
- In releases older than Debian 12 and Ubuntu 22.04, directory /etc/apt/keyrings does not exist by default, and it should be created before the curl command.
+ In releases older than Debian 12 and Ubuntu 22.04, directory `/etc/apt/keyrings` does not exist by default, and it should be created before the curl command.
 ### 4.3. **Add the Kubernetes apt repository:**
 ```bash
+# This overwrites any existing configuration in /etc/apt/sources.list.d/kubernetes.list
 echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 ```
 
