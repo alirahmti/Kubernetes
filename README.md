@@ -44,7 +44,7 @@ To allow kubelet to work properly, we need to disable swap on both machines (Mas
 
 To configure the IPv4 bridge on all nodes, execute the following commands on each node.
 
-#### 🔹 **Load the `br_netfilter` module required for networking:**
+#### 🔹 **Load the `br_netfilter` and `overlay` module required for networking:**
 ```bash
 cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
 overlay
@@ -53,6 +53,7 @@ EOF
 sudo modprobe overlay
 sudo modprobe br_netfilter
 ```
+The overlay and br_netfilter kernel modules are essential for Kubernetes networking and container runtime functionality.
 To allow iptables to see bridged traffic, as required by Kubernetes, we need to set the values of certain fields to 1.
 
 
