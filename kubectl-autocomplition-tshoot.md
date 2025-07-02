@@ -1,91 +1,140 @@
-## 🚀 Troubleshooting `root@master:~# kubectl cre_get_comp_words_by_ref: command not found` ❌
+# 🧠 Fixing `kubectl` Bash Autocompletion Issues on SSH
 
-If you encounter the error:
+If you're experiencing broken autocompletion when you SSH into your Kubernetes master or worker nodes, this guide helps you **fix it once and for all**! 🛠️
 
-```
 
-# kubectl cre\_get\_comp\_words\_by\_ref: command not found
-^C
-````
 
-It typically means that the `kubectl` autocompletion is not properly set up. Here's how to fix it:
+## 🐞 Problem
 
-## 1️⃣ Install the `bash-completion` Package 🔑
-
-1. **Install the `bash-completion` package:**
-
-   On **Debian/Ubuntu**-based systems, run the following command:
+Every time I SSH into my Kubernetes node and try to use `kubectl` with tab completion, I get this annoying error:
 
 ```bash
-   sudo apt-get install bash-completion
+kubectl cre_get_comp_words_by_ref: command not found ❌
 ````
 
-For **Red Hat/CentOS** systems, use:
+This means bash-completion isn't set up properly in your shell session.
+
+
+
+## ✅ Solution (Permanent Setup)
+
+Follow these steps to permanently enable `kubectl` autocompletion on every SSH login session:
+
+
+
+### 1️⃣ Install `bash-completion` Package
+
+Install the required package for enabling autocompletion.
+
+**For Debian/Ubuntu:**
 
 ```bash
-sudo yum install bash-completion
+sudo apt-get update
+sudo apt-get install bash-completion -y
 ```
 
-2. **Load the `bash-completion` configuration:**
+**For Red Hat/CentOS:**
 
-   After installation, load the `bash-completion` configuration with the following command:
-
-   ```bash
-   source /etc/profile.d/bash_completion.sh
-   ```
+```bash
+sudo yum install bash-completion -y
+```
 
 ---
 
-## 2️⃣ Enable `kubectl` Autocompletion ⚙️
+### 2️⃣ Enable Autocompletion in Shell
 
-1. **Activate `kubectl` autocompletion:**
+Edit your shell configuration file:
 
-   Run the following command to activate `kubectl` autocompletion for the current session:
+**If using `root`:**
 
-   ```bash
-   source <(kubectl completion bash)
-   ```
+```bash
+vim /root/.bashrc
+```
 
----
+**If using a regular user:**
 
-## 3️⃣ Make Autocompletion Persistent 💾
+```bash
+vim ~/.bashrc
+```
 
-To ensure `kubectl` autocompletion is always available, you need to add it to your shell’s configuration file:
+At the **end of the file**, add the following block:
 
-1. **Add the autocompletion command to `~/.bashrc`:**
+```bash
+# ✅ Enable bash completion
+if [ -f /etc/bash_completion ]; then
+  . /etc/bash_completion
+fi
 
-   Run the following command to make `kubectl` autocompletion persistent across sessions:
+# 🚀 Enable kubectl autocompletion
+source <(kubectl completion bash)
 
-   ```bash
-   echo 'source <(kubectl completion bash)' >> ~/.bashrc
-   ```
+# 🔁 Optional: alias for kubectl
+alias k=kubectl
+complete -F __start_kubectl k
+```
 
-2. **Reload your `~/.bashrc` file:**
-
-   To apply the changes, run:
-
-   ```bash
-   source ~/.bashrc
-   ```
-
----
-
-## 4️⃣ Test `kubectl` Autocompletion ✅
-
-Once you’ve completed the above steps, test the autocompletion feature:
-
-* Type `kubectl` and press `Tab`. You should see a list of available commands and options!
+> 💡 **Tip:** If you’re using `sudo su` or `sudo -i` to switch to root, make sure to put the same config in `/root/.bashrc`.
 
 ---
 
+### 3️⃣ Reload the Configuration
 
+To apply changes:
 
-### Key Notes:
-- **Installation of `bash-completion`**: We install the required package for autocompletion functionality.
-- **Enabling `kubectl` autocompletion**: Activates it for the current session and then makes it permanent by adding it to `~/.bashrc`.
-- **Testing**: Verifying that autocompletion works by pressing `Tab` after typing `kubectl`.
+```bash
+source ~/.bashrc
+```
 
 ---
-## **Author** ✍️
 
-Created by [Ali Rahmati](https://github.com/alirahmti). If you find this repository helpful, feel free to fork it or contribute!
+### 4️⃣ (Optional) Bash as Default Shell
+
+Make sure your default shell is Bash:
+
+```bash
+echo $SHELL
+```
+
+If not, set it:
+
+```bash
+chsh -s /bin/bash
+```
+
+
+
+## 🧪 Test It!
+
+Type the following and press `Tab` twice:
+
+```bash
+kubectl [TAB][TAB]
+```
+
+You should now see a list of available commands 🎉
+
+
+
+## 📝 Summary
+
+| Step | Action                                     |
+| ---- | ------------------------------------------ |
+| 1️⃣  | Install `bash-completion`                  |
+| 2️⃣  | Add config to `.bashrc` or `.bash_profile` |
+| 3️⃣  | Reload the shell config                    |
+| 4️⃣  | Test autocompletion with `kubectl`         |
+
+
+
+## 💬 Bonus
+
+If you want to automate this across multiple nodes, consider writing a shell script to apply this config in `/root/.bashrc` for each host.
+
+
+> ## 📝 About the Author
+> #### Crafted with care and ❤️ by [Ali Rahmati](https://github.com/alirahmti). 👨‍💻
+> If this repo saved you time or solved a problem, a ⭐ means everything in the DevOps world. 🧠💾
+> Your star ⭐ is like a high five from the terminal — thanks for the support! 🙌🐧
+
+
+
