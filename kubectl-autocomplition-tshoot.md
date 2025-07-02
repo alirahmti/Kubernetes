@@ -39,6 +39,12 @@ sudo apt-get install bash-completion -y
 sudo yum install bash-completion -y
 ```
 
+Then load it into your session:
+
+```bash
+source /etc/profile.d/bash_completion.sh
+```
+
 ---
 
 ### 2️⃣ Enable Autocompletion in Shell
