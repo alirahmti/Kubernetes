@@ -1,4 +1,4 @@
-# 🧠 Fixing `kubectl` Bash Autocompletion Issues on SSH
+# 🧠 Fixing `kubectl` Bash Autocompletion Issues
 
 If you're experiencing broken autocompletion when you SSH into your Kubernetes master or worker nodes, this guide helps you **fix it once and for all**! 🛠️
 
