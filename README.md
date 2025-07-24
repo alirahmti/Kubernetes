@@ -263,7 +263,7 @@ sudo kubeadm join <control_plane_IP>:6443 --token <token> --discovery-token-ca-c
 
 
 
-## **Author** ✍️
-
-Created by [Ali Rahmati](https://github.com/alirahmti). If you find this repository helpful, feel free to fork it or contribute!
-
+> ## 📝 About the Author
+> #### Crafted with care and ❤️ by [Ali Rahmati](https://github.com/alirahmti). 👨‍💻
+> If this repo saved you time or solved a problem, a ⭐ means everything in the DevOps world. 🧠💾
+> Your star ⭐ is like a high five from the terminal — thanks for the support! 🙌🐧
