@@ -81,4 +81,5 @@ users:
     token: ${TOKEN}
 EOF
 
-echo "✅ Admin kubeconfig created: kubeconfig-${USERNAME}.yaml"
+echo "✅🔐 Kubeconfig for user '${USERNAME}' with 🛡️ admin-level access to namespace '${NAMESPACE}' has been successfully generated! 📄🚀"
+echo "📦 File: kubeconfig-${USERNAME}.yaml"
