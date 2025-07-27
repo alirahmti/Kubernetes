@@ -7,9 +7,13 @@ read -p "Enter username (e.g., ali): " USERNAME
 read -p "Enter namespace (e.g., devops): " NAMESPACE
 read -p "Enter cluster endpoint (e.g., https://apisrv.example.com:8443): " CLUSTER_ENDPOINT
 
-echo "Select access level:"
+echo "🔐 Select access level for the user:"
+echo "➡️  Type the number corresponding to your desired access level:"
+PS3="🎯 Access Level #: "
+
 select ACCESS_LEVEL in "read-only" "read-write" "admin"; do
   if [[ -n "$ACCESS_LEVEL" ]]; then
+    echo "✅ You selected: 🔸 '${ACCESS_LEVEL}' access level 🔐"
     break
   fi
 done
