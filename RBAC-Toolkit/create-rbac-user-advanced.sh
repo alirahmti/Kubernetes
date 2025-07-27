@@ -5,7 +5,7 @@ set -e
 # 🎯 Get inputs
 read -p "Enter username (e.g., ali): " USERNAME
 read -p "Enter namespace (e.g., devops): " NAMESPACE
-read -p "Enter cluster endpoint (e.g., https://apisrv.aranetco.ir:8443): " CLUSTER_ENDPOINT
+read -p "Enter cluster endpoint (e.g., https://apisrv.example.com:8443): " CLUSTER_ENDPOINT
 
 echo "Select access level:"
 select ACCESS_LEVEL in "read-only" "read-write" "admin"; do
