@@ -1,27 +1,36 @@
 # 🔐 Kubernetes RBAC User Creation Toolkit
 
-This repo includes **two fully-automated bash scripts** to generate RBAC users for Kubernetes via ServiceAccounts, tokens, and kubeconfig generation.
+This directory includes **two fully-automated bash scripts** to generate RBAC users for Kubernetes using `ServiceAccounts`, tokens, and `kubeconfig` files — with full support for custom access controls.
 
-> Supports secure role assignment, namespace isolation, and different permission levels – ready for production, automation, and CI/CD usage.
+> ✅ Ideal for DevOps, GitOps, CI/CD pipelines, and production-grade environments.
 
 
 ## ✳️ Script 1: `create-rbac-user-advanced.sh`
 
-A fully-interactive script that asks for:
-- ✅ Username
-- ✅ Target Namespace
-- ✅ Kubernetes API endpoint (e.g., `https://apisrv.example.com:8443`)
-- ✅ Access Level: `read-only`, `read-write`, or `admin`
+🎛️ A fully-interactive **RBAC user generator** that supports four access modes:
+
+- 👤 Custom username input  
+- 📦 Namespace isolation  
+- 🌐 API Server endpoint  
+- 🔐 Access Level:  
+  - `read-only`
+  - `read-write`
+  - `admin`
+  - `custom` (your own resource/verb matrix)
+
 
 ### 🧰 How It Works
 
-It will:
-1. Create the namespace (if not exists)
-2. Create a ServiceAccount for the user
-3. Define a Role based on your access level
-4. Bind the Role to the ServiceAccount
-5. Create a secret token for the SA
-6. Generate a ready-to-use `kubeconfig-<username>.yaml`
+This script will:
+
+1. 🔎 Check if namespace exists (creates it if not)
+2. 👤 Create a ServiceAccount for the user
+3. 📜 Create a Role (based on chosen access level)
+4. 🔗 Bind Role to the ServiceAccount
+5. 🔑 Create a token Secret
+6. 📄 Generate a ready-to-use `kubeconfig-<username>.yaml`
+
+
 
 ### 🔑 Access Level Definitions
 
@@ -29,63 +38,78 @@ It will:
 |--------------|-------------|
 | **read-only** | Can only view Pods, Services, and Deployments |
 | **read-write** | Can create, update, delete, and view Pods, Services, Deployments |
-| **admin** | Full access to **all** resources in the given namespace |
+| **admin** | Full access to **all** resources in the specified namespace |
+| **custom** | 🎯 You choose exactly **which resources** and **what kind of access (verbs)** you want per resource |
+
+
+### 🔧 How `custom` Access Works
+
+When selecting the `custom` option, you’ll be asked to:
+1. ✅ Choose one or more resources from a list (e.g., `pods`, `services`, `secrets`, `ingresses`, etc.)
+2. ✅ For each resource, choose:
+   - 👁️ Read-only → `get`, `list`, `watch`
+   - ✍️ Read-write → All verbs (`create`, `update`, `delete`, etc.)
+   - 🎛️ Custom → Enter exactly the verbs you want
+
+> 📌 Great for scenarios where you want **fine-grained RBAC control** — e.g., give read access to `secrets`, but full access to `pods`.
+
 
 
 ## 🔐 Script 2: `create-rbac-namespace-admin.sh`
 
-This script gives **full administrative access** (verbs: `*`) to a given namespace.
+This script is for granting full **admin-level access** to a namespace.
 
-### 🧰 Resources Included in Role:
+### 🧰 Role Includes:
 
-- API groups: `"", apps, extensions, *`
-- Resources: `"*"` (everything)
-- Verbs: `"*"` (create, get, list, update, patch, delete...)
+- 🔗 API Groups: `""`, `apps`, `extensions`, `*`
+- 📦 Resources: `*` (everything)
+- 🛠️ Verbs: `*` (create, get, list, patch, delete, etc.)
 
-> This means the user can **manage all Kubernetes resources within the specified namespace.**
+> ⚠️ This grants unrestricted power over all resources in the namespace.
 
----
 
-## 🧩 Add More Resources (Optional - Advanced)
 
-Want to customize the Role for **specific resource types**? Here's what you can use:
+## 📚 Supported Kubernetes Resources
+
+When using the **custom** mode, you can select from the following:
 
 | Resource | Description |
 |----------|-------------|
-| `pods` | Individual containers or workloads |
-| `services` | Network abstraction to expose your apps |
-| `deployments` | Declarative way to manage ReplicaSets and Pods |
-| `configmaps` | Key-value pairs for non-confidential data |
-| `secrets` | Key-value for confidential data (base64 encoded) |
-| `persistentvolumeclaims` | Request for storage from available PVs |
-| `jobs` | One-time Pod workloads |
-| `cronjobs` | Scheduled recurring jobs |
-| `replicasets` | Maintain a stable set of Pods |
+| `pods` | Individual containers/workloads |
+| `services` | Networking abstraction |
+| `deployments` | Declarative way to manage Pods |
+| `configmaps` | Key-value config data |
+| `secrets` | Confidential key-values (base64) |
+| `persistentvolumeclaims` | Persistent storage requests |
+| `jobs` | One-time tasks |
+| `cronjobs` | Scheduled jobs |
+| `replicasets` | Maintain Pod stability |
 | `ingresses` | HTTP routing to Services |
-| `namespaces` | (⚠️ only with ClusterRole!) Create or delete namespaces |
-| `roles` / `rolebindings` | Manage RBAC within namespace |
 | `events` | Read Kubernetes events |
-| `nodes` | (⚠️ only with ClusterRole!) Access to node-level info |
-| `networkpolicies` | Control Pod-to-Pod network access |
+| `roles` / `rolebindings` | RBAC components |
+| `networkpolicies` | Control Pod networking |
+| `namespaces`, `nodes` | ⚠️ Require ClusterRole access |
 
-> 🛑 To access **cluster-wide resources** like `nodes`, `namespaces`, or `clusterroles`, you need a **ClusterRole** instead of a namespace-specific Role.
+> 🛑 Accessing `nodes`, `namespaces`, etc. requires using a **ClusterRole** instead of a Role.
 
-## 📦 Example Output
 
-At the end of execution, you’ll get a file:
+
+## 📄 Example Output
+
+After running the script, you’ll get a file like:
 
 ```bash
 kubeconfig-<username>.yaml
 ````
 
-You can now use it with:
+Use it like this:
 
 ```bash
 export KUBECONFIG=./kubeconfig-<username>.yaml
 kubectl get pods
 ```
 
-Or configure your `~/.kube/config` to include that context.
+Or merge with your existing `~/.kube/config`.
 
 ## ✅ How to Test Your `kubeconfig` File
 
@@ -141,14 +165,16 @@ echo $KUBECONFIG
 If it prints nothing, you're back to default ✅
 
 
+## 🛠️ Requirements
 
-## 📝 Requirements
+* 🧠 Basic Kubernetes knowledge
+* ✅ `kubectl` with cluster-admin privileges
+* 🐧 Linux/MacOS with Bash (or WSL on Windows)
+* ✅ Kubernetes v1.20+
 
-* `kubectl` CLI configured and authenticated with admin access
-* Kubernetes version 1.20+ (RBAC enabled)
-* Bash environment
 
-## 🚀 Usage (Quick Start)
+
+## 🚀 Usage
 
 ```bash
 chmod +x create-rbac-user-advanced.sh
@@ -162,22 +188,17 @@ chmod +x create-rbac-namespace-admin.sh
 ./create-rbac-namespace-admin.sh
 ```
 
-
-
 ## ❤️ Contributing
 
-PRs are welcome to:
+Feel free to contribute with:
 
-* Add `ClusterRole` support
-* Add template generator for Helm charts
-* Integrate with GitOps tools like ArgoCD
-
-
+* ✳️ ClusterRole support
+* 📦 Helm templates
+* 🔁 GitOps integration (e.g., ArgoCD, Flux)
 
 ## 🛡️ Disclaimer
 
-These scripts are designed for namespace-level access. Use `ClusterRole` and `ClusterRoleBinding` **only** if you understand the full implications of granting cluster-wide access.
-
+This directory is for **namespace-level RBAC**. If you plan to use **ClusterRole/ClusterRoleBinding**, make sure you fully understand the implications and risks of cluster-wide access.
 
 
 
