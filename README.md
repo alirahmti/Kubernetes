@@ -50,9 +50,13 @@ cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
 overlay
 br_netfilter
 EOF
+```
+
+```bash
 sudo modprobe overlay
 sudo modprobe br_netfilter
 ```
+
 The overlay and br_netfilter kernel modules are essential for Kubernetes networking and container runtime functionality.
 To allow iptables to see bridged traffic, as required by Kubernetes, we need to set the values of certain fields to 1.
 
