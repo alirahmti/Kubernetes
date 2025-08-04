@@ -190,7 +190,7 @@ export KUBECONFIG=/etc/kubernetes/admin.conf
 
 ---
 
-## 5️⃣ **Install Flannel** 🌐
+## 5️⃣ **Install Flannel** 
 
 Flannel is a simple and easy way to configure a layer 3 network fabric designed for Kubernetes.
 
@@ -203,9 +203,29 @@ kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube
 If you use a custom podCIDR (not `10.244.0.0/16`), you first need to download the above manifest and modify the network to match your configuration.  
 For example, if your custom podCIDR is `192.168.0.0/16`, modify the network configuration in the downloaded manifest to match this range.
 
+## 6️⃣ **Install Calico ** 🌐
+
+Calico is a powerful networking and network security solution for Kubernetes. It helps with pod networking, network policies, and more. 🚀
+
+🔹 **Step 1: Create ServiceAccount & RoleBinding**:
+Calico requires a ServiceAccount with the correct roles to interact with Kubernetes resources.
+
+```bash
+kubectl create serviceaccount calico-node -n kube-system
+kubectl create clusterrolebinding calico-admin --clusterrole=cluster-admin --serviceaccount=kube-system:calico-node
+```
+
+🔹 **Step 2: Install Calico with kubectl**:
+
+```bash
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+```
+
+⚠️ **Warning**:
+Ensure your Kubernetes nodes are properly configured to support Calico. If you're facing issues with pod connectivity, check firewall or CNI settings.
 ---
 
-## 6️⃣ **Kubectl Autocompletion** ⌨️
+## 7️⃣ **Kubectl Autocompletion** ⌨️
 
 #### **BASH:**
 ```bash
@@ -227,7 +247,7 @@ echo 'kubectl completion fish | source' > ~/.config/fish/completions/kubectl.fis
 
 ---
 
-## 7️⃣ **Join Worker Node to Cluster** 🤝
+## 8️⃣ **Join Worker Node to Cluster** 🤝
 
 #### 🔹 **Run the `kubeadm join` command on each worker node to connect it to the control plane (master node):**
 ```bash
