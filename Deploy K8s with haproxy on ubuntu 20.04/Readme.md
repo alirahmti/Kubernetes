@@ -193,7 +193,7 @@ export KUBECONFIG=/etc/kubernetes/admin.conf
 >These are just two of the many CNI options available for Kubernetes. 🔧 Depending on your network needs, you might find other CNI plugins that suit your use case even better! 💡 However, for this guide, we'll focus on these two options to keep things simple. Let's move forward with the installation based on your choice! 🚀
 
 
-##  5.1 **Install Flannel 🌐**
+##  5.1. **Install Flannel 🌐**
 
 Flannel is a simple and easy way to configure a Layer 3 network fabric designed for Kubernetes. It helps with pod networking and is suitable for most basic use cases. 🚀
 
@@ -210,7 +210,7 @@ For example, if your custom `podCIDR` is `192.168.0.0/16`, modify the network co
 
 
 
-## 5.2 **Install Calico 🌐**
+## 5.2. **Install Calico 🌐**
 
 Calico is a powerful networking and network security solution for Kubernetes. It helps with pod networking, network policies, and much more. Calico is highly recommended for advanced use cases, especially when you need network security features. 🛡️
 
@@ -504,4 +504,5 @@ Using **port 8443** for HAProxy instead of **port 6443** is a best practice that
 ## **Author** ✍️
 
 Created by [Ali Rahmati](https://github.com/alirahmti). If you find this repository helpful, feel free to fork it or contribute!
+
 
