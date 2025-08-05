@@ -187,20 +187,51 @@ export KUBECONFIG=/etc/kubernetes/admin.conf
 
 ---
 
-## 5️⃣ **Install Flannel** 🌐
+## 5️⃣ **CNI plugins for Kubernetes networking 🌐**
+### Currently, we have two CNI installation methods: `Flannel` and `Calico`. 
 
-Flannel is a simple and easy way to configure a layer 3 network fabric designed for Kubernetes.
+>These are just two of the many CNI options available for Kubernetes. 🔧 Depending on your network needs, you might find other CNI plugins that suit your use case even better! 💡 However, for this guide, we'll focus on these two options to keep things simple. Let's move forward with the installation based on your choice! 🚀
+
+
+##  5.1 **Install Flannel 🌐**
+
+Flannel is a simple and easy way to configure a Layer 3 network fabric designed for Kubernetes. It helps with pod networking and is suitable for most basic use cases. 🚀
 
 #### 🔹 **Deploy Flannel with `kubectl`:**
+
 ```bash
 kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml
 ```
 
-#### ⚠️ **Warning:**  
-If you use a custom podCIDR (not `10.244.0.0/16`), you first need to download the above manifest and modify the network to match your configuration.  
-For example, if your custom podCIDR is `192.168.0.0/16`, modify the network configuration in the downloaded manifest to match this range.
+#### ⚠️ **Warning:**
 
----
+If you use a custom `podCIDR` (not `10.244.0.0/16`), you first need to download the above manifest and modify the network to match your configuration.
+For example, if your custom `podCIDR` is `192.168.0.0/16`, modify the network configuration in the downloaded manifest to match this range. 🌍
+
+
+
+## 5.2 **Install Calico 🌐**
+
+Calico is a powerful networking and network security solution for Kubernetes. It helps with pod networking, network policies, and much more. Calico is highly recommended for advanced use cases, especially when you need network security features. 🛡️
+
+🔹 **Step 1: Create ServiceAccount & RoleBinding**:
+Calico requires a ServiceAccount with the correct roles to interact with Kubernetes resources. Run the following commands to set up the permissions:
+
+```bash
+kubectl create serviceaccount calico-node -n kube-system
+kubectl create clusterrolebinding calico-admin --clusterrole=cluster-admin --serviceaccount=kube-system:calico-node
+```
+
+🔹 **Step 2: Install Calico with `kubectl`:**
+Now, you can install Calico using the following command:
+
+```bash
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+```
+
+#### ⚠️ **Warning:**
+
+Ensure your Kubernetes nodes are properly configured to support Calico. If you're facing issues with pod connectivity, check firewall or CNI settings. 🔧
 
 ## 6️⃣ **Kubectl Autocompletion** ⌨️
 
@@ -473,3 +504,4 @@ Using **port 8443** for HAProxy instead of **port 6443** is a best practice that
 ## **Author** ✍️
 
 Created by [Ali Rahmati](https://github.com/alirahmti). If you find this repository helpful, feel free to fork it or contribute!
+
