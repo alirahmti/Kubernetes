@@ -68,7 +68,7 @@ echo "rules:" >> "$ROLE_FILE"
 if [[ "$ACCESS_LEVEL" == "custom" ]]; then
   echo ""
   echo "📚 Available Kubernetes Resources:"
-  RES_NAMES=("pods" "services" "deployments" "configmaps" "secrets" "persistentvolumeclaims" "jobs" "cronjobs" "replicasets" "ingresses" "events" "roles" "rolebindings" "networkpolicies")
+  RES_NAMES=("pods" "services" "deployments" "configmaps" "secrets" "persistentvolumeclaims" "jobs" "cronjobs" "replicasets" "ingresses" "events" "roles" "rolebindings" "networkpolicies" "pods/log")
   i=1
   for r in "${RES_NAMES[@]}"; do
     printf "  %2d) 📦 %s\n" "$i" "$r"
