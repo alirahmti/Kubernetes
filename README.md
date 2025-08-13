@@ -10,6 +10,18 @@ Kubernetes is an open-source container orchestration system for automating softw
 ### **Let's proceed with the installation step by step ✔️**
 
 ---
+## **Table of Contents** 📚
+1. [Disable Swap Memory 🛑](#1️⃣-disable-swap-memory--1)
+2. [Set up the IPv4 Bridge Networking on All Nodes 🌉](#2️⃣-set-up-the-ipv4-bridge-networking-on-all-nodes-)
+3. [Install Container Runtime (Containerd) 🐳](#3️⃣-install-container-runtime-containerd-)
+4. [Install Kubernetes Tools (kubeadm, kubelet, kubectl) 🛠️](#4️⃣-install-kubernetes-tools-kubeadm-kubelet-kubectl-%EF%B8%8F)
+5. [CNI plugins for Kubernetes networking 🌐](#5️⃣-cni-plugins-for-kubernetes-networking-)
+   - [Install Flannel 🌐](#51-install-flannel-)
+   - [Install Calico 🌐](#52-install-calico-)
+6. [Kubectl Autocompletion ⌨️](#6️⃣-kubectl-autocompletion-%EF%B8%8F)
+7. [Join Worker Node to Cluster 🤝](#7️⃣-join-worker-node-to-cluster-)
+8. [How to Remove Kubernetes Cluster with kubeadm 🛠️](#-how-to-remove-kubernetes-cluster-with-kubeadm-%EF%B8%8F)
+---
 
 ## 1️⃣ **Disable Swap Memory 🛑** 
 
