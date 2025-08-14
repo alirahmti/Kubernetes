@@ -10,6 +10,18 @@ Kubernetes is an open-source container orchestration system for automating softw
 ### **Let's proceed with the installation step by step ✔️**
 
 ---
+## **Table of Contents** 📚
+1. [Disable Swap Memory 🛑](#1️⃣-disable-swap-memory-)
+2. [Set up the IPv4 Bridge Networking on All Nodes 🌉](#2️⃣-set-up-the-ipv4-bridge-networking-on-all-nodes-)
+3. [Install Container Runtime (Containerd) 🐳](#3️⃣-install-container-runtime-containerd-)
+4. [Install Kubernetes Tools (kubeadm, kubelet, kubectl) 🛠️](#4️⃣-install-kubernetes-tools-kubeadm-kubelet-kubectl-%EF%B8%8F)
+5. [CNI plugins for Kubernetes networking 🌐](#5️⃣-cni-plugins-for-kubernetes-networking-)
+   - [Install Flannel 🌐](#51-install-flannel-)
+   - [Install Calico 🌐](#52-install-calico-)
+6. [Kubectl Autocompletion ⌨️](#6️⃣-kubectl-autocompletion-%EF%B8%8F)
+7. [Join Worker Node to Cluster 🤝](#7️⃣-join-worker-node-to-cluster-)
+8. [How to Remove Kubernetes Cluster with kubeadm 🛠️](#-how-to-remove-kubernetes-cluster-with-kubeadm-%EF%B8%8F)
+---
 
 ## 1️⃣ **Disable Swap Memory 🛑** 
 
@@ -44,15 +56,20 @@ To allow kubelet to work properly, we need to disable swap on both machines (Mas
 
 To configure the IPv4 bridge on all nodes, execute the following commands on each node.
 
-#### 🔹 **Load the `br_netfilter` module required for networking:**
+#### 🔹 **Load the `br_netfilter` and `overlay` module required for networking:**
 ```bash
 cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
 overlay
 br_netfilter
 EOF
+```
+
+```bash
 sudo modprobe overlay
 sudo modprobe br_netfilter
 ```
+
+The overlay and br_netfilter kernel modules are essential for Kubernetes networking and container runtime functionality.
 To allow iptables to see bridged traffic, as required by Kubernetes, we need to set the values of certain fields to 1.
 
 
@@ -111,7 +128,6 @@ Let’s install `kubelet`, `kubeadm`, and `kubectl` on each node to create a Kub
 #### 🔸 **`Kubeadm`** : The command to bootstrap the cluster.  
 #### 🔸 **`Kubelet`** : The component that runs on all machines in your cluster and starts pods and containers.  
 #### 🔸 **`Kubectl`** : The command-line utility to interact with your cluster.
-
 
 #### ⚠️ **These instructions are for Kubernetes v1.33.**
 
@@ -183,23 +199,53 @@ Alternatively, if you are the root user, you can run:
 export KUBECONFIG=/etc/kubernetes/admin.conf
 ```
 
-
 ---
+## 5️⃣ **CNI plugins for Kubernetes networking 🌐**
+### Currently, we have two CNI installation methods: `Flannel` and `Calico`. 
 
-## 5️⃣ **Install Flannel** 🌐
+>These are just two of the many CNI options available for Kubernetes. 🔧 Depending on your network needs, you might find other CNI plugins that suit your use case even better! 💡 However, for this guide, we'll focus on these two options to keep things simple. Let's move forward with the installation based on your choice! 🚀
 
-Flannel is a simple and easy way to configure a layer 3 network fabric designed for Kubernetes.
+
+##  5.1. **Install Flannel 🌐**
+
+Flannel is a simple and easy way to configure a Layer 3 network fabric designed for Kubernetes. It helps with pod networking and is suitable for most basic use cases. 🚀
 
 #### 🔹 **Deploy Flannel with `kubectl`:**
+
 ```bash
 kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml
 ```
 
-#### ⚠️ **Warning:**  
-If you use a custom podCIDR (not `10.244.0.0/16`), you first need to download the above manifest and modify the network to match your configuration.  
-For example, if your custom podCIDR is `192.168.0.0/16`, modify the network configuration in the downloaded manifest to match this range.
+#### ⚠️ **Warning:**
 
----
+If you use a custom `podCIDR` (not `10.244.0.0/16`), you first need to download the above manifest and modify the network to match your configuration.
+For example, if your custom `podCIDR` is `192.168.0.0/16`, modify the network configuration in the downloaded manifest to match this range. 🌍
+
+
+
+## 5.2. **Install Calico 🌐**
+
+Calico is a powerful networking and network security solution for Kubernetes. It helps with pod networking, network policies, and much more. Calico is highly recommended for advanced use cases, especially when you need network security features. 🛡️
+
+🔹 **Step 1: Create ServiceAccount & RoleBinding**:
+Calico requires a ServiceAccount with the correct roles to interact with Kubernetes resources. Run the following commands to set up the permissions:
+
+```bash
+kubectl create serviceaccount calico-node -n kube-system
+kubectl create clusterrolebinding calico-admin --clusterrole=cluster-admin --serviceaccount=kube-system:calico-node
+```
+
+🔹 **Step 2: Install Calico with `kubectl`:**
+Now, you can install Calico using the following command:
+
+```bash
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+```
+
+#### ⚠️ **Warning:**
+
+Ensure your Kubernetes nodes are properly configured to support Calico. If you're facing issues with pod connectivity, check firewall or CNI settings. 🔧
+
 
 ## 6️⃣ **Kubectl Autocompletion** ⌨️
 
@@ -261,9 +307,116 @@ kubeadm token create --print-join-command
 sudo kubeadm join <control_plane_IP>:6443 --token <token> --discovery-token-ca-cert-hash <hash>
 ```
 
+---
+# 🚀 **How to Remove Kubernetes Cluster with kubeadm** 🛠️
+
+In this final section, we’ll walk you through the steps to **completely remove your Kubernetes cluster** and all related configurations. This is helpful if you need to tear down your cluster to reset, reconfigure, or create a fresh Kubernetes setup.  🧹
+
+   
+
+### **Step-by-Step Guide to Remove Kubernetes Cluster** 🧹
+
+When you want to start fresh or remove your cluster for any reason, follow these steps carefully. This guide will remove all Kubernetes-related components and configurations from your system.
 
 
-## **Author** ✍️
 
-Created by [Ali Rahmati](https://github.com/alirahmti). If you find this repository helpful, feel free to fork it or contribute!
+### **Step 1: Reset Kubernetes Cluster with kubeadm** 🔄
 
+To begin, we need to reset the Kubernetes cluster on **all nodes** (both Master and Worker nodes). Run the following command:
+
+```bash
+sudo kubeadm reset
+```
+
+This command will reset the cluster and remove most Kubernetes configurations. ✅
+
+
+### **Step 2: Clean Up Kubernetes Files** 🧽
+
+Next, remove all Kubernetes-related files and configurations from your system:
+
+```bash
+sudo rm -rf /etc/kubernetes
+sudo rm -rf ~/.kube
+sudo rm -rf /var/lib/etcd
+```
+
+This will clean up all cluster configurations and etcd data, leaving no residual Kubernetes files. 🧹
+
+
+
+### **Step 3: Remove CNI Configurations** 🌐
+
+If you're using a **CNI (Container Network Interface)** plugin (such as **Flannel** or **Calico**), you need to remove those configurations:
+
+```bash
+sudo rm -rf /etc/cni
+```
+
+This step will clean up any networking configurations set up by your Kubernetes network plugin. 🌐
+
+
+
+### **Step 4: Disable and Stop kubelet** 🛑
+
+Stop the `kubelet` service and disable it from starting automatically:
+
+```bash
+sudo systemctl stop kubelet
+sudo systemctl disable kubelet
+```
+
+This ensures that the `kubelet` service is not running and will not restart when the system boots. 🔒
+
+
+
+### **Step 5: Remove Network Interfaces** 🔧
+
+Kubernetes or CNI plugins may add virtual network interfaces to the system. Remove them by running:
+
+```bash
+sudo ip link delete <interface-name>
+```
+
+Replace `<interface-name>` with the name of the interface you want to remove (e.g., `tunl0`, `cni0`). 💻
+
+
+### **Step 6: Reboot the System** 🔄
+
+Once you have cleaned up all Kubernetes components, it’s a good idea to reboot the system to ensure all changes are applied:
+
+```bash
+sudo reboot
+```
+
+
+
+### **Step 7: Verify Removal** ✅
+
+After the reboot, verify that Kubernetes is no longer active on your nodes:
+
+```bash
+kubectl get nodes
+```
+
+If the cluster is removed properly, you should see no nodes listed. 👀
+
+
+### **Step 8: Reinitialize the Kubernetes Cluster** 🔄
+
+If you're ready to reinitialize your Kubernetes cluster, you can follow the [Kubernetes setup guide](https://github.com/alirahmti/Kubernetes) for instructions. Whether you're setting up a fresh cluster or testing something new, the guide will help you get your cluster up and running in no time! 😄
+
+
+
+### 🎉 **Congratulations! You've Successfully Removed Your Kubernetes Cluster!** 🎉
+
+With this, you have a completely fresh environment, ready to be reinitialized, reconfigured, or simply removed from the system. 🔥
+
+This concludes the Kubernetes removal steps. If you need further assistance or have questions about reinstalling or configuring a new cluster, feel free to check other sections of the Kubernetes setup guide or reach out for help!
+
+**Happy Kubernetes-ing!** 🚀
+---
+> ## 📝 About the Author
+> #### Crafted with care and ❤️ by [Ali Rahmati](https://github.com/alirahmti). 👨‍💻
+> If this repo saved you time or solved a problem, a ⭐ means everything in the DevOps world. 🧠💾
+> Your star ⭐ is like a high five from the terminal — thanks for the support! 🙌🐧
