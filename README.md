@@ -181,6 +181,48 @@ sudo kubeadm config images pull
 kubeadm init --control-plane-endpoint "<FQDN or IPAddress>:6443" --pod-network-cidr=10.244.0.0/16 --upload-certs
 ```
 
+## 🌐 Using an Alternative Image Registry for Kubernetes Setup
+
+If you are **unable to pull Kubernetes images** from the default registries
+`k8s.gcr.io` or `registry.k8s.io` — for example, due to **network restrictions** or **regional blocks** —
+you can **switch to an alternative image repository** and proceed as follows:
+
+
+### **🔹 4.7.1. Pull Required Kubernetes Images**
+
+Use the following command to **pre-pull** all the required Kubernetes images from
+the **Aliyun registry** instead of the default registries:
+
+```bash
+kubeadm config images pull \
+  --kubernetes-version v1.30.14 \
+  --image-repository registry.aliyuncs.com/google_containers
+```
+
+> 💡 **Tip:**
+> This ensures that all necessary images are downloaded beforehand and prevents failures during cluster initialization.
+### **🔹 4.8.2. Initialize the Kubernetes Cluster**
+
+Once the images are ready, initialize your cluster using the following command:
+```bash
+kubeadm init \
+  --control-plane-endpoint "<IP Address or FQDN>:6443" \
+  --kubernetes-version v1.30.14 \
+  --image-repository registry.aliyuncs.com/google_containers \
+  --pod-network-cidr=10.244.0.0/16 \
+  --upload-certs
+```
+
+#### **Explanation of Flags**
+
+* **`--control-plane-endpoint`** 🌍 → Use either the **IP address** or **FQDN** of your API server endpoint.
+* **`--kubernetes-version`** 📌 → The exact Kubernetes version to deploy.
+* **`--image-repository`** 🗃️ → Alternative image registry (Aliyun) to avoid issues accessing `k8s.gcr.io`.
+* **`--pod-network-cidr`** 🕸️ → The subnet range for pods; required by most CNI plugins like Flannel.
+* **`--upload-certs`** 🔐 → Automatically uploads certificates for adding additional control-plane nodes.
+
+
+
 #### ⚠️ **If the cluster doesn’t work, reset it with kubeadm:**
 ```bash
 sudo kubeadm reset --force
